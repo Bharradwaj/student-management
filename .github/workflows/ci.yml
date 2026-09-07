@@ -7,34 +7,29 @@ on:
     branches: [main]
 
 jobs:
-  build-test-package:
+  package-project:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v6
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
       - name: Show project files
-        run: ls -la
-
-      - name: Compile Java files
         run: |
-          mkdir -p out
-          find . -name "*.java" -not -path "./out/*" -print0 | xargs -0 javac -d out
+          echo "Repository files:"
+          find . -maxdepth 3 -type f | sort
 
-      - name: Package application
+      - name: Create project package
         run: |
-          jar cf student-management.jar -C out .
+          mkdir -p package
+          tar -czf package/student-management.tar.gz \
+            --exclude=.git \
+            --exclude=package \
+            .
 
-      - name: Upload application package
+      - name: Upload project package
         uses: actions/upload-artifact@v4
         with:
           name: student-management-package
-          path: student-management.jar
+          path: package/student-management.tar.gz
           
