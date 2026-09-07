@@ -14,29 +14,27 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v6
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
-          node-version: "20"
+          distribution: temurin
+          java-version: "17"
 
-      - name: Install dependencies
-        run: npm install
+      - name: Show project files
+        run: ls -la
 
-      - name: Build application
-        run: npm run build --if-present
-
-      - name: Run tests
-        run: npm test --if-present
-
-      - name: Create package folder
+      - name: Compile Java files
         run: |
-          mkdir -p package
-          cp -r . package/project
-          rm -rf package/project/node_modules
-          rm -rf package/project/.git
+          mkdir -p out
+          find . -name "*.java" -not -path "./out/*" -print0 | xargs -0 javac -d out
+
+      - name: Package application
+        run: |
+          jar cf student-management.jar -C out .
 
       - name: Upload application package
         uses: actions/upload-artifact@v4
         with:
           name: student-management-package
-          path: package/
+          path: student-management.jar
+          
